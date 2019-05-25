@@ -1,0 +1,10 @@
+name: RegionsX
+main: io.github.biologyiswell.regionsx.RXPlugin
+version: 1.0
+api-version: 1.14
+author: biologyiswell
+
+commands:
+  regionsx:
+    description: Handle the all functions from the plugin.
+    aliases: [rx]
