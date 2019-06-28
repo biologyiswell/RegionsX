@@ -1,0 +1,9 @@
+{
+    "only_players_execute_command": "Somente jogadores podem usar este comando.",
+    "create_region_command_description": "Cria uma região com uma tamanho específico",
+    "delete_region_command_description": "Deleta uma região sua",
+    "regions_command_description": "Lista todas as suas regiões",
+    "cant_break_block": "Você não pode quebrar blocos na região de {}",
+    "cant_place_block": "Você não pode colocar blocos na regiaõ de {}",
+    "cant_use_block": "Você não pode usar os blocos da regiaõ de {}"
+}
