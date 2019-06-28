@@ -28,6 +28,7 @@ public class RXConfiguration {
 
     // ... Default configuration ...
 
+    @Getter private static String lang = "en_US";
     @Getter private static double pricePerBlock = 25.0d;
     @Getter private static int minRegionSize = 10;
     @Getter private static int maxCommonHouses = 5;
@@ -47,6 +48,9 @@ public class RXConfiguration {
 
         validateDatabase(database, configuration, regions);
         validateConfiguration(configuration);
+
+        // Enable language support.
+        RXLanguageSupport.enable();
     }
 
     /**
@@ -95,6 +99,7 @@ public class RXConfiguration {
             if (objectConfiguration == null) {
                 objectConfiguration = new JsonObject();
 
+                objectConfiguration.addProperty("lang", lang);
                 objectConfiguration.addProperty("price_per_block", pricePerBlock);
                 objectConfiguration.addProperty("max_common_houses", maxCommonHouses);
                 objectConfiguration.addProperty("min_region_size", minRegionSize);
@@ -107,6 +112,7 @@ public class RXConfiguration {
 
             // Instead of, continue the process loading
             // information from file.
+            lang = objectConfiguration.get("lang").getAsString();
             pricePerBlock = objectConfiguration.get("price_per_block").getAsDouble();
             maxCommonHouses = objectConfiguration.get("max_common_houses").getAsInt();
             minRegionSize = objectConfiguration.get("min_region_size").getAsInt();
