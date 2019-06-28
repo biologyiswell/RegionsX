@@ -29,13 +29,13 @@ import java.util.List;
  * @author biologyiswell (24/05/2018 20:00)
  * @since 1.0
  */
-public class RXRegions {
+public class RXRegionManager {
 
     /**
      * This list store the all regions registered
      * in server.
      */
-    private static final List<Region> REGION_LIST = new ArrayList<>();
+    private static final List<RXRegion> REGION_LIST = new ArrayList<>();
 
     /**
      * Enable region handler. This method will
@@ -72,7 +72,7 @@ public class RXRegions {
             if (arrayData == null) return;
 
             for (JsonElement regionData : arrayData) {
-                Region region = RXConfiguration.GSON.fromJson(regionData, Region.class);
+                RXRegion region = RXConfiguration.GSON.fromJson(regionData, RXRegion.class);
 
                 // Add the region to list.
                 REGION_LIST.add(region);
@@ -94,7 +94,7 @@ public class RXRegions {
         try (FileWriter writer = new FileWriter(regions)) {
             JsonArray arrayData = new JsonArray();
 
-            for (Region region : REGION_LIST) {
+            for (RXRegion region : REGION_LIST) {
                 arrayData.add(RXConfiguration.GSON.toJsonTree(region));
             }
 
@@ -110,7 +110,7 @@ public class RXRegions {
     /**
      * Add a region to region list.
      */
-    public static void addRegion(Region region) {
+    public static void addRegion(RXRegion region) {
         REGION_LIST.add(region);
         markRegion(region);
     }
@@ -118,14 +118,14 @@ public class RXRegions {
     /**
      * Remove the region from region list.
      */
-    public static void removeRegion(Region region) {
+    public static void removeRegion(RXRegion region) {
         REGION_LIST.remove(region);
     }
 
     /**
      * This method mark the region with fences.
      */
-    private static void markRegion(Region region) {
+    private static void markRegion(RXRegion region) {
         World world = Bukkit.getWorld(region.getWorld());
         Preconditions.checkNotNull(world, "world \"" + region.getWorld() + "\" not found.");
 
@@ -142,8 +142,8 @@ public class RXRegions {
     /**
      * Get region from player by the name.
      */
-    public static Region getRegion(Player player, String name) {
-        for (Region region : REGION_LIST) {
+    public static RXRegion getRegion(Player player, String name) {
+        for (RXRegion region : REGION_LIST) {
             if (region.getOwner().equals(player.getName()) && region.getName().equals(name)) {
                 return region;
             }
@@ -155,10 +155,10 @@ public class RXRegions {
     /**
      * Return a list with all player own regions.
      */
-    public static List<Region> getPlayerRegions(Player player) {
-        List<Region> regionList = null;
+    public static List<RXRegion> getPlayerRegions(Player player) {
+        List<RXRegion> regionList = null;
 
-        for (Region region : REGION_LIST) {
+        for (RXRegion region : REGION_LIST) {
             if (region.getOwner().equals(player.getName())) {
                 // Lazy initialization for region list.
                 if (regionList == null) regionList = new ArrayList<>();
@@ -173,9 +173,9 @@ public class RXRegions {
      * Check if the player has a region with this name.
      */
     public static boolean hasRegion(Player player, String name) {
-        List<Region> regionList = getPlayerRegions(player);
+        List<RXRegion> regionList = getPlayerRegions(player);
 
-        for (Region region : regionList) {
+        for (RXRegion region : regionList) {
             if (region.getName().equals(name)) {
                 return true;
             }
@@ -188,8 +188,8 @@ public class RXRegions {
      * Get region by location. This method will check if some region
      * registered in region list is in inside in the location.
      */
-    public static Region getRegionByLocation(Location location) {
-        for (Region region : REGION_LIST) {
+    public static RXRegion getRegionByLocation(Location location) {
+        for (RXRegion region : REGION_LIST) {
             int minX = region.getMinX();
             int minZ = region.getMinZ();
 

@@ -1,9 +1,9 @@
 package io.github.biologyiswell.regionsx;
 
-import io.github.biologyiswell.regionsx.command.RXCommand;
+import io.github.biologyiswell.regionsx.command.RXCommandManager;
 import io.github.biologyiswell.regionsx.configuration.RXConfiguration;
-import io.github.biologyiswell.regionsx.listener.RXListener;
-import io.github.biologyiswell.regionsx.region.RXRegions;
+import io.github.biologyiswell.regionsx.listener.RXListenerManager;
+import io.github.biologyiswell.regionsx.region.RXRegionManager;
 
 import lombok.Getter;
 
@@ -30,14 +30,14 @@ public class RXPlugin extends JavaPlugin {
         instance = this;
 
         RXConfiguration.enable(this);
-        RXRegions.enable(this);
-        RXListener.enable(this);
-        RXCommand.enable(this);
+        RXRegionManager.enable(this);
+        RXListenerManager.enable(this);
+        RXCommandManager.enable(this);
     }
 
     @Override
     public void onDisable() {
         RXConfiguration.disable(this);
-        RXRegions.disable(this);
+        RXRegionManager.disable(this);
     }
 }

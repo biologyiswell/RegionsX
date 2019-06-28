@@ -1,9 +1,9 @@
 package io.github.biologyiswell.regionsx.command;
 
 import io.github.biologyiswell.regionsx.configuration.RXConfiguration;
-import io.github.biologyiswell.regionsx.region.RXRegions;
-import io.github.biologyiswell.regionsx.region.Region;
-import io.github.biologyiswell.regionsx.region.RegionFlag;
+import io.github.biologyiswell.regionsx.region.RXRegionManager;
+import io.github.biologyiswell.regionsx.region.RXRegion;
+import io.github.biologyiswell.regionsx.region.RXRegionFlag;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -17,21 +17,15 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.List;
 
 /**
- * This class handle the all commands from the plugin.
+ * Main command of plugin.
  *
  * @author biologyiswell (24/05/2019 21:39)
  * @since 1.0
  */
 public class RXCommand implements CommandExecutor {
 
-    /**
-     * Enable the command.
-     */
-    public static void enable(JavaPlugin plugin) {
-        plugin.getCommand("regionsx").setExecutor(new RXCommand());
+    protected RXCommand() {
     }
-
-    // ... Command ...
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
@@ -73,7 +67,7 @@ public class RXCommand implements CommandExecutor {
                 return warnAndReturn(player, "O tamanho mínimo de um terreno deve ser de " + RXConfiguration.getMinRegionSize() + ".");
 
             // Check if the player reached the maximum regions that can has.
-            if (!player.isOp() && !player.hasPermission("rx.regions") && RXRegions.getPlayerRegions(player).size() == RXConfiguration.getMaxCommonHouses())
+            if (!player.isOp() && !player.hasPermission("rx.regions") && RXRegionManager.getPlayerRegions(player).size() == RXConfiguration.getMaxCommonHouses())
                 return warnAndReturn(player, "Você já atingiu o número máximo de regiões que pode proteger (" + RXConfiguration.getMaxCommonHouses() + ").");
 
             // Radius from region.
@@ -84,22 +78,22 @@ public class RXCommand implements CommandExecutor {
 
             // ... Validate region ...
 
-            Region localRegion = RXRegions.getRegionByLocation(min);
+            RXRegion localRegion = RXRegionManager.getRegionByLocation(min);
 
             // Check first if a region intercept another by the minimum location,
             // if not, then check the maximum location.
             if (localRegion != null) return warnAndReturn(player, "Uma região já existe nesta localidade.");
             else {
-                localRegion = RXRegions.getRegionByLocation(max);
+                localRegion = RXRegionManager.getRegionByLocation(max);
                 if (localRegion != null) return warnAndReturn(player, "Uma região já existe nesta localidade.");
             }
 
-            if (RXRegions.hasRegion(player, name)) return warnAndReturn(player, "Você já tem uma região com o nome de \"" + name + "\", por favor escolha outro.");
+            if (RXRegionManager.hasRegion(player, name)) return warnAndReturn(player, "Você já tem uma região com o nome de \"" + name + "\", por favor escolha outro.");
 
             // ... Create region ...
 
             // Add region to region handler, and mark the region.
-            RXRegions.addRegion(new Region(player, name, min, max));
+            RXRegionManager.addRegion(new RXRegion(player, name, min, max));
 
             player.sendMessage(ChatColor.GREEN + "Você protegeu uma região de " + size + "x" + size + ", com nome de \"" + name + "\".");
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
@@ -112,13 +106,13 @@ public class RXCommand implements CommandExecutor {
             if (args.length < 2) return invalidUsage(player, "deletar <nome>");
 
             String name = args[1];
-            Region region = RXRegions.getRegion(player, name);
+            RXRegion region = RXRegionManager.getRegion(player, name);
 
             // Check if the player has the region.
             if (region == null) return warnAndReturn(player, "Você não tem nenhuma região com o nome de \"" + name + "\".");
 
             // Remove the region from region handler.
-            RXRegions.removeRegion(region);
+            RXRegionManager.removeRegion(region);
 
             player.sendMessage(ChatColor.GREEN + "Você deletou a região \"" + name + "\".");
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
@@ -141,14 +135,14 @@ public class RXCommand implements CommandExecutor {
 
         // Sub-command: regions.
         if (command.equalsIgnoreCase("regioes")) {
-            List<Region> regionList = RXRegions.getPlayerRegions(player);
+            List<RXRegion> regionList = RXRegionManager.getPlayerRegions(player);
 
             // Check if the player has no region.
             if (regionList.isEmpty()) return warnAndReturn(player, "Você não tem nenhuma região para listar.");
 
             player.sendMessage("");
             int index = 1;
-            for (Region region : regionList)
+            for (RXRegion region : regionList)
                 player.sendMessage(" " + (index++) + ". " + region.getName() + ", X: " + region.getCenterX() + ", Z: " + region.getCenterZ() + ".");
             player.sendMessage("");
             return false;
@@ -162,7 +156,7 @@ public class RXCommand implements CommandExecutor {
             String regionName = args[1];
             String member = args[2];
 
-            Region region = RXRegions.getRegion(player, regionName);
+            RXRegion region = RXRegionManager.getRegion(player, regionName);
 
             // Check if the player has the region.
             if (region == null) return warnAndReturn(player, "Você não tem uma região com o nome de \"" + regionName + "\".");
@@ -171,16 +165,16 @@ public class RXCommand implements CommandExecutor {
             // that the owner from region give all permissions to modify
             // the region.
             if (args.length == 3) {
-                region.addFlag(member, RegionFlag.BREAK);
-                region.addFlag(member, RegionFlag.PLACE);
-                region.addFlag(member, RegionFlag.USE);
+                region.addFlag(member, RXRegionFlag.BREAK);
+                region.addFlag(member, RXRegionFlag.PLACE);
+                region.addFlag(member, RXRegionFlag.USE);
 
                 player.sendMessage(ChatColor.GREEN + "Você deu todas as permissões para o membro \"" + member + "\" para modificar a região \"" + regionName + "\".");
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
                 return false;
             }
 
-            RegionFlag regionFlag = RegionFlag.getRegionFlagByName(args[3]);
+            RXRegionFlag regionFlag = RXRegionFlag.getRegionFlagByName(args[3]);
 
             // Check if the flag has been found.
             if (regionFlag == null) return warnAndReturn(player, "Esta flag não foi encontrada. Use: /rx flags. Para saber todas as flags disponíveis.");
@@ -188,7 +182,7 @@ public class RXCommand implements CommandExecutor {
             // Add the flag to player.
             region.addFlag(member, regionFlag);
 
-            player.sendMessage(ChatColor.GREEN + "Você deu a permissão de " + RegionFlag.getTranslatedName(regionFlag) + " para modificar a região \"" + regionName + "\" para o jogador \"" + member + "\".");
+            player.sendMessage(ChatColor.GREEN + "Você deu a permissão de " + RXRegionFlag.getTranslatedName(regionFlag) + " para modificar a região \"" + regionName + "\" para o jogador \"" + member + "\".");
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
             return false;
         }
@@ -201,7 +195,7 @@ public class RXCommand implements CommandExecutor {
             String regionName = args[1];
             String member = args[2];
 
-            Region region = RXRegions.getRegion(player, regionName);
+            RXRegion region = RXRegionManager.getRegion(player, regionName);
 
             // Check if the player has the region.
             if (region == null) return warnAndReturn(player, "Você não tem uma região com o nome de \"" + regionName + "\".");
@@ -210,16 +204,16 @@ public class RXCommand implements CommandExecutor {
             // that the owner from region give all permissions to modify
             // the region.
             if (args.length == 3) {
-                region.removeFlag(member, RegionFlag.BREAK);
-                region.removeFlag(member, RegionFlag.PLACE);
-                region.removeFlag(member, RegionFlag.USE);
+                region.removeFlag(member, RXRegionFlag.BREAK);
+                region.removeFlag(member, RXRegionFlag.PLACE);
+                region.removeFlag(member, RXRegionFlag.USE);
 
                 player.sendMessage(ChatColor.GREEN + "Você removeu todas as permissões do membro \"" + member + "\" para modificar a região \"" + regionName + "\".");
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
                 return false;
             }
 
-            RegionFlag regionFlag = RegionFlag.getRegionFlagByName(args[3]);
+            RXRegionFlag regionFlag = RXRegionFlag.getRegionFlagByName(args[3]);
 
             // Check if the flag has been found.
             if (regionFlag == null) return warnAndReturn(player, "Esta flag não foi encontrada. Use: /rx flags. Para saber todas as flags disponíveis.");
@@ -227,7 +221,7 @@ public class RXCommand implements CommandExecutor {
             // Remove the flag from player.
             region.removeFlag(member, regionFlag);
 
-            player.sendMessage(ChatColor.GREEN + "Você removeu a permissão de " + RegionFlag.getTranslatedName(regionFlag) + " para modificar a região \"" + regionName + "\" do jogador \"" + member + "\".");
+            player.sendMessage(ChatColor.GREEN + "Você removeu a permissão de " + RXRegionFlag.getTranslatedName(regionFlag) + " para modificar a região \"" + regionName + "\" do jogador \"" + member + "\".");
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
             return false;
         }

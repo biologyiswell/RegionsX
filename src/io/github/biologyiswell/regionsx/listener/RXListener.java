@@ -1,8 +1,8 @@
 package io.github.biologyiswell.regionsx.listener;
 
-import io.github.biologyiswell.regionsx.region.RXRegions;
-import io.github.biologyiswell.regionsx.region.Region;
-import io.github.biologyiswell.regionsx.region.RegionFlag;
+import io.github.biologyiswell.regionsx.region.RXRegionManager;
+import io.github.biologyiswell.regionsx.region.RXRegion;
+import io.github.biologyiswell.regionsx.region.RXRegionFlag;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -26,18 +26,9 @@ import java.util.Iterator;
  */
 public class RXListener implements Listener {
 
-    /**
-     * Enable the listener.
-     */
-    public static void enable(JavaPlugin plugin) {
-        Bukkit.getPluginManager().registerEvents(new RXListener(), plugin);
-    }
-
-    // ... Events ...
-
     @EventHandler
     public void onBreakBlock(BlockBreakEvent event) {
-        Region region = RXRegions.getRegionByLocation(event.getBlock().getLocation());
+        RXRegion region = RXRegionManager.getRegionByLocation(event.getBlock().getLocation());
 
         // If the region is null, then this represents that
         // no one is owner from this region.
@@ -45,7 +36,7 @@ public class RXListener implements Listener {
 
         // Check if the member from the region has the flag
         // to can break the blocks from region.
-        if (region.hasFlag(event.getPlayer(), RegionFlag.BREAK)) return;
+        if (region.hasFlag(event.getPlayer(), RXRegionFlag.BREAK)) return;
 
         event.getPlayer().sendMessage(ChatColor.RED + "Você não pode quebrar blocos da região de " + region.getOwner() + ".");
         event.setCancelled(true);
@@ -53,13 +44,13 @@ public class RXListener implements Listener {
 
     @EventHandler
     public void onPlaceBlock(BlockPlaceEvent event) {
-        Region region = RXRegions.getRegionByLocation(event.getBlock().getLocation());
+        RXRegion region = RXRegionManager.getRegionByLocation(event.getBlock().getLocation());
 
         if (region == null) return;
 
         // Check if the member from the region has the flag
         // to can break the blocks from region.
-        if (region.hasFlag(event.getPlayer(), RegionFlag.PLACE)) return;
+        if (region.hasFlag(event.getPlayer(), RXRegionFlag.PLACE)) return;
 
         event.getPlayer().sendMessage(ChatColor.RED + "Você não pode colocar blocos na região de " + region.getOwner() + ".");
         event.setCancelled(true);
@@ -70,13 +61,13 @@ public class RXListener implements Listener {
         // Check if the clicked block is null, then return it.
         if (event.getClickedBlock() == null) return;
 
-        Region region = RXRegions.getRegionByLocation(event.getClickedBlock().getLocation());
+        RXRegion region = RXRegionManager.getRegionByLocation(event.getClickedBlock().getLocation());
 
         if (region == null) return;
 
         // Check if the member from region has the flag
         // to can use the blocks from region.
-        if (region.hasFlag(event.getPlayer(), RegionFlag.USE)) return;
+        if (region.hasFlag(event.getPlayer(), RXRegionFlag.USE)) return;
 
         event.getPlayer().sendMessage(ChatColor.RED + "Você não pode usar os blocos da região de " + region.getOwner() + ".");
         event.setCancelled(true);
@@ -86,7 +77,7 @@ public class RXListener implements Listener {
     public void onEntityExplode(EntityExplodeEvent event) {
         for (Iterator iterator = event.blockList().iterator(); iterator.hasNext(); ) {
             Block block = (Block) iterator.next();
-            Region region = RXRegions.getRegionByLocation(block.getLocation());
+            RXRegion region = RXRegionManager.getRegionByLocation(block.getLocation());
 
             // If the block is inner from a region, then remove the block
             // from block list.
@@ -96,7 +87,7 @@ public class RXListener implements Listener {
 
     @EventHandler
     public void onBlockIgnite(BlockIgniteEvent event) {
-        Region region = RXRegions.getRegionByLocation(event.getBlock().getLocation());
+        RXRegion region = RXRegionManager.getRegionByLocation(event.getBlock().getLocation());
 
         // If the ignited block is inner a region, then cancel the spread. But
         // if the region is null, no region owner there.

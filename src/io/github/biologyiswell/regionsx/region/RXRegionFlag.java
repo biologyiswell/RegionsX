@@ -5,7 +5,7 @@ package io.github.biologyiswell.regionsx.region;
  * Each flag represents a permission that the
  * player has in a region.
  */
-public enum RegionFlag {
+public enum RXRegionFlag {
 
     BREAK,
     PLACE,
@@ -14,7 +14,7 @@ public enum RegionFlag {
     /**
      * Get region flag by name.
      */
-    public static RegionFlag getRegionFlagByName(String name) {
+    public static RXRegionFlag getRegionFlagByName(String name) {
         if (name.equalsIgnoreCase("break") || name.equalsIgnoreCase("quebrar")) {
             return BREAK;
         } else if (name.equalsIgnoreCase("place") || name.equalsIgnoreCase("colocar")) {
@@ -29,7 +29,7 @@ public enum RegionFlag {
     /**
      * Get translated name from region flag.
      */
-    public static String getTranslatedName(RegionFlag regionFlag) {
+    public static String getTranslatedName(RXRegionFlag regionFlag) {
         if (regionFlag == BREAK) {
             return "Quebrar";
         } else if (regionFlag == PLACE) {

@@ -22,7 +22,7 @@ import java.util.Map;
  */
 @Getter
 @AllArgsConstructor
-public class Region {
+public class RXRegion {
 
     private String owner;
     private String name;
@@ -34,14 +34,14 @@ public class Region {
     private int maxZ;
 
     private String world;
-    private Map<String, List<RegionFlag>> members;
+    private Map<String, List<RXRegionFlag>> members;
 
     /**
      * Constructor, requires the player that will be owner from region,
      * the name from region, and the minimum and maximum position that
      * will mark the region.
      */
-    public Region(Player player, String name, Location min, Location max) {
+    public RXRegion(Player player, String name, Location min, Location max) {
         Preconditions.checkNotNull(player);
         Preconditions.checkNotNull(min);
         Preconditions.checkNotNull(max);
@@ -66,23 +66,23 @@ public class Region {
     /**
      * Check if the member from the region has the flag.
      */
-    public boolean hasFlag(String name, RegionFlag flag) {
+    public boolean hasFlag(String name, RXRegionFlag flag) {
         return this.owner.equals(name) || this.members.containsKey(name) && this.members.get(name).contains(flag);
     }
 
     /**
      * Check if the member from the region has the flag by player.
-     * @see #hasFlag(String, RegionFlag)
+     * @see #hasFlag(String, RXRegionFlag)
      */
-    public boolean hasFlag(Player player, RegionFlag flag) {
+    public boolean hasFlag(Player player, RXRegionFlag flag) {
         return this.hasFlag(player.getName(), flag);
     }
 
     /**
      * Add a flag to a member.
      */
-    public void addFlag(String member, RegionFlag flag) {
-        List<RegionFlag> flagList = this.members.computeIfAbsent(member, k -> new ArrayList<>());
+    public void addFlag(String member, RXRegionFlag flag) {
+        List<RXRegionFlag> flagList = this.members.computeIfAbsent(member, k -> new ArrayList<>());
 
         if (!flagList.contains(flag)) {
             flagList.add(flag);
@@ -92,8 +92,8 @@ public class Region {
     /**
      * Remove a flag from a member.
      */
-    public void removeFlag(String member, RegionFlag flag) {
-        List<RegionFlag> flagList = this.members.get(member);
+    public void removeFlag(String member, RXRegionFlag flag) {
+        List<RXRegionFlag> flagList = this.members.get(member);
 
         if (flagList == null) return;
 
